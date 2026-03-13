@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>우리집 학교 포털</title>
+  <link rel="stylesheet" href="./assets/css/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand__title">우리집 학교 포털</div>
+      <div class="brand__sub" id="brandSub">가족 전용</div>
+    </div>
+    <nav class="nav">
+      <a href="#/notice" id="navNotice">공지</a>
+      <a href="#/timetable" id="navTimetable">시간표</a>
+      <a href="#/changes" id="navChanges">변동로그</a>
+      <a href="#/admin" id="navAdmin" class="nav__muted">관리</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="searchbar" id="searchbar">
+      <input id="q" type="search" placeholder="검색: 준비물 / 태권도 / 현장학습 / 돌봄…" />
+      <button id="btnClear" class="btn btn--ghost">지우기</button>
+    </section>
+
+    <section id="view"></section>
+  </main>
+
+  <div class="modal" id="lockModal" aria-hidden="true">
+    <div class="modal__card">
+      <h2>가족 전용</h2>
+      <p class="muted" id="lockHint">공유 비밀번호를 입력하면 내용을 볼 수 있어요.</p>
+
+      <label class="label">공유 비밀번호</label>
+      <input id="sharedPass" type="password" autocomplete="current-password" />
+
+      <label class="row mt8">
+        <input id="remember" type="checkbox" />
+        <span>이 기기에서 기억(권장하지 않음)</span>
+      </label>
+
+      <div class="row mt12">
+        <button id="btnUnlock" class="btn">들어가기</button>
+        <button id="btnGoSetup" class="btn btn--ghost">초기설정</button>
+        <button id="btnReset" class="btn btn--ghost">초기화</button>
+      </div>
+
+      <div class="hint mt12">
+        처음 1번은 <b>초기설정</b>에서 content.enc 파일을 만들어 업로드해야 합니다.
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./assets/js/app.js"></script>
+</body>
+</html>
