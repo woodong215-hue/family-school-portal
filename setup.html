@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>초기설정 - 우리집 학교 포털</title>
+  <link rel="stylesheet" href="./assets/css/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand__title">초기설정</div>
+      <div class="brand__sub">content.enc 만들기</div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <div style="font-weight:900; font-size:18px">1) 비밀번호 입력</div>
+      <p class="muted small">공유 비밀번호는 가족이 사이트 들어올 때 쓰는 비밀번호입니다.</p>
+
+      <label class="label">공유 비밀번호(보기용)</label>
+      <input id="shared" type="password" />
+
+      <label class="label">관리자 비밀번호(편집용 /admin 잠금)</label>
+      <input id="admin" type="password" />
+    </section>
+
+    <section class="card">
+      <div style="font-weight:900; font-size:18px">2) 기본 데이터(원하면 나중에 수정 가능)</div>
+      <label class="label">학교 이름(선택)</label>
+      <input id="school" type="text" placeholder="예: OO초" style="width:100%; padding:12px 14px; border-radius:12px; border:1px solid rgba(255,255,255,.1); background:rgba(11,15,23,.65); color:#eaf0ff; outline:none;" />
+
+      <label class="label">첫 공지(붙여넣기)</label>
+      <textarea id="firstNotice">여기에 가정통신문을 붙여넣어 정리하세요.
+- 준비물:
+- 일정:
+- 출처:</textarea>
+
+      <div class="row mt12">
+        <button id="make" class="btn">content.enc 다운로드</button>
+        <a class="btn btn--ghost" href="./index.html">메인으로</a>
+      </div>
+
+      <div class="hint mt12">
+        다운로드된 <b>content.enc</b> 파일을 GitHub 저장소의 <b>data/content.enc</b>로 업로드(교체)하고 커밋하면 끝!
+      </div>
+    </section>
+  </main>
+
+  <script type="module">
+    import { encryptJsonToEncObject, sha256Hex } from "./assets/js/crypto.js";
+
+    function download(blob, filename){
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = filename;
+      document.body.appendChild(a);
+      a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url), 500);
+    }
+
+    document.querySelector("#make").addEventListener("click", async ()=>{
+      const shared = document.querySelector("#shared").value;
+      const admin  = document.querySelector("#admin").value;
+
+      if (!shared || shared.length < 6) { alert("공유 비밀번호는 6자 이상 추천"); return; }
+      if (!admin || admin.length < 8) { alert("관리자 비밀번호는 8자 이상 추천"); return; }
+
+      const school = document.querySelector("#school").value.trim();
+      const firstNotice = document.querySelector("#firstNotice").value;
+
+      const today = new Date().toISOString().slice(0,10);
+
+      const json = {
+        meta: { schoolName: school || "", lastUpdated: today },
+        settings: {
+          periods: [
+            { name:"1교시", start:null, end:null },
+            { name:"2교시", start:null, end:null },
+            { name:"3교시", start:null, end:null },
+            { name:"4교시", start:null, end:null },
+            { name:"5교시", start:null, end:null }
+          ],
+          fixedBlocks: [
+            { id:"care", title:"돌봄교실", days:["월","화","수","목","금"], start:null, end:"15:15" },
+            { id:"tkd", title:"태권도", days:["월","화","금"], start:null, end:"16:40" }
+          ],
+          adminPasswordSha256: await sha256Hex(admin)
+        },
+        notices: [
+          { date: today, title:"첫 공지", tags:["안내"], pinned:true, body:firstNotice }
+        ],
+        timetableWeeks: [],
+        changeLogs: []
+      };
+
+      const encObj = await encryptJsonToEncObject(json, shared);
+      download(new Blob([JSON.stringify(encObj, null, 2)], {type:"application/json"}), "content.enc");
+      alert("다운로드 완료! 이제 GitHub에서 data/content.enc로 업로드/교체 후 커밋하세요.");
+    });
+  </script>
+</body>
+</html>
